@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  avatar    String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  learningPaths    LearningPath[]
+  notes           Note[]
+  collaborations  Collaboration[]
+  userSessions    UserSession[]
+  translations    Translation[]
+
+  @@map("users")
+}
+
+model LearningPath {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  isPublic    Boolean  @default(false)
+  color       String   @default("#3B82F6")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ownerId     String
+
+  // Relations
+  owner         User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  nodes         PathNode[]
+  collaborations Collaboration[]
+  translations  Translation[]
+
+  @@map("learning_paths")
+}
+
+model PathNode {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      NodeStatus @default(NOT_STARTED)
+  color       String     @default("#6B7280")
+  order       Int
+  parentId    String?
+  deadline    DateTime?
+  estimatedTime Int?     // in minutes
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  pathId      String
+
+  // Relations
+  path        LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  parent      PathNode?    @relation("NodeHierarchy", fields: [parentId], references: [id])
+  children    PathNode[]   @relation("NodeHierarchy")
+  notes       Note[]
+  translations Translation[]
+
+  @@map("path_nodes")
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  nodeId    String
+
+  // Relations
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  node PathNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
+
+model Collaboration {
+  id          String           @id @default(cuid())
+  role        CollaborationRole @default(VIEWER)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  userId      String
+  pathId      String
+
+  // Relations
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  path LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pathId])
+  @@map("collaborations")
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  socketId  String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+model Translation {
+  id          String   @id @default(cuid())
+  originalText String
+  translatedText String
+  sourceLang  String
+  targetLang  String
+  context     String   // 'title', 'description', 'note'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  pathId      String?
+  nodeId      String?
+
+  // Relations
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  path LearningPath? @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  node PathNode?     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@map("translations")
+}
+
+enum NodeStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum CollaborationRole {
+  VIEWER
+  EDITOR
+  ADMIN
+} 

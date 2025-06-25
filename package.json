@@ -1,0 +1,37 @@
+{
+  "name": "skillforge",
+  "version": "1.0.0",
+  "description": "SkillForge - Intelligent Learning Path Generator with Real-time Collaboration",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "start": "cd server && npm run start",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "prisma:migrate": "cd server && npx prisma migrate dev",
+    "prisma:studio": "cd server && npx prisma studio",
+    "prisma:generate": "cd server && npx prisma generate"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "learning",
+    "ai",
+    "collaboration",
+    "education",
+    "mindmap",
+    "react",
+    "nodejs"
+  ],
+  "author": "SkillForge Team",
+  "license": "MIT"
+} 
