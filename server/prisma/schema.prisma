@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,143 +8,171 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
-  avatar    String?
-  bio       String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                          Int      @id @default(autoincrement())
+  username                    String   @unique
+  email                       String   @unique
+  password                    String
+  creditBalance               Int      @default(0)
+  stripeAccountId             String?  @unique
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
 
-  // Relations
-  learningPaths    LearningPath[]
-  notes           Note[]
-  collaborations  Collaboration[]
-  userSessions    UserSession[]
-  translations    Translation[]
-
-  @@map("users")
+  createdLearningPaths          LearningPath[]           @relation("PathOwner")
+  collaborations                Collaboration[]
+  purchasedPaths                UserPurchasedPath[]
+  sentCollaborationRequests     CollaborationRequest[]   @relation("RequestSender")
+  receivedCollaborationRequests CollaborationRequest[]   @relation("RequestReceiver")
+  withdrawalRequests            WithdrawalRequest[]
+  sentTransactions              Transaction[]            @relation("Sender")
+  receivedTransactions          Transaction[]            @relation("Receiver")
 }
 
 model LearningPath {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  isPublic    Boolean  @default(false)
-  color       String   @default("#3B82F6")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  ownerId     String
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String?
+  price         Int      @default(0)
+  isPublic      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  // Relations
-  owner         User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  nodes         PathNode[]
-  collaborations Collaboration[]
-  translations  Translation[]
+  owner         User @relation("PathOwner", fields: [ownerId], references: [id])
+  ownerId       Int
 
-  @@map("learning_paths")
+  nodes                 Node[]
+  collaborators         Collaboration[]
+  purchasedBy           UserPurchasedPath[]
+  collaborationRequests CollaborationRequest[]
+
+  @@index([ownerId])
 }
 
-model PathNode {
-  id          String     @id @default(cuid())
-  title       String
-  description String?
-  status      NodeStatus @default(NOT_STARTED)
-  color       String     @default("#6B7280")
-  order       Int
-  parentId    String?
-  deadline    DateTime?
-  estimatedTime Int?     // in minutes
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  pathId      String
+model Node {
+  id               Int        @id @default(autoincrement())
+  title            String
+  description      String?
+  status           NodeStatus @default(NOT_STARTED)
+  notificationDate DateTime?
+  color            String?
+  positionX        Float?
+  positionY        Float?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
-  // Relations
-  path        LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
-  parent      PathNode?    @relation("NodeHierarchy", fields: [parentId], references: [id])
-  children    PathNode[]   @relation("NodeHierarchy")
-  notes       Note[]
-  translations Translation[]
+  learningPath   LearningPath @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  learningPathId Int
+  parent         Node?        @relation("NodeHierarchy", fields: [parentNodeId], references: [id], onDelete: Cascade)
+  parentNodeId   Int?
+  children       Node[]       @relation("NodeHierarchy")
 
-  @@map("path_nodes")
-}
-
-model Note {
-  id        String   @id @default(cuid())
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
-  nodeId    String
-
-  // Relations
-  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  node PathNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
-
-  @@map("notes")
+  @@index([learningPathId])
 }
 
 model Collaboration {
-  id          String           @id @default(cuid())
-  role        CollaborationRole @default(VIEWER)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  userId      String
-  pathId      String
+  id             Int               @id @default(autoincrement())
+  role           CollaborationRole
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+  learningPath   LearningPath      @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  learningPathId Int
 
-  // Relations
-  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  path LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, pathId])
-  @@map("collaborations")
+  @@unique([userId, learningPathId])
+  @@index([userId])
+  @@index([learningPathId])
 }
 
-model UserSession {
-  id        String   @id @default(cuid())
-  socketId  String   @unique
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
+model CollaborationRequest {
+  id             Int                 @id @default(autoincrement())
+  offeredRole    CollaborationRole
+  status         CollaborationStatus @default(PENDING)
+  createdAt      DateTime            @default(now())
 
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningPath   LearningPath @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  learningPathId Int
+  sender         User         @relation("RequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId       Int
+  receiver       User         @relation("RequestReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId     Int
 
-  @@map("user_sessions")
+  @@index([receiverId, status])
 }
 
-model Translation {
-  id          String   @id @default(cuid())
-  originalText String
-  translatedText String
-  sourceLang  String
-  targetLang  String
-  context     String   // 'title', 'description', 'note'
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String
-  pathId      String?
-  nodeId      String?
+model Transaction {
+  id         Int             @id @default(autoincrement())
+  type       TransactionType
+  amount     Int
+  createdAt  DateTime        @default(now())
 
-  // Relations
-  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  path LearningPath? @relation(fields: [pathId], references: [id], onDelete: Cascade)
-  node PathNode?     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  sender     User @relation("Sender", fields: [senderId], references: [id])
+  senderId   Int
+  receiver   User @relation("Receiver", fields: [receiverId], references: [id])
+  receiverId Int
 
-  @@map("translations")
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model UserPurchasedPath {
+  id             Int      @id @default(autoincrement())
+  purchasePrice  Int
+  purchasedAt    DateTime @default(now())
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+  learningPath   LearningPath @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  learningPathId Int
+
+  @@unique([userId, learningPathId])
+  @@index([userId])
+}
+
+model WithdrawalRequest {
+  id               Int              @id @default(autoincrement())
+  amountCredits    Int
+  amountMinor      Int
+  currency         String
+  platformFeeMinor Int
+  finalPayoutMinor Int
+  status           WithdrawalStatus @default(PENDING)
+  stripeTransferId String?          @unique
+  createdAt        DateTime         @default(now())
+  processedAt      DateTime?
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum CollaborationRole {
+  EDITOR
+  VIEWER
+}
+
+enum CollaborationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum NodeStatus {
   NOT_STARTED
   IN_PROGRESS
   COMPLETED
-  BLOCKED
 }
 
-enum CollaborationRole {
-  VIEWER
-  EDITOR
-  ADMIN
-} 
+enum TransactionType {
+  PLATFORM_CREDIT_PURCHASE
+  PATH_PURCHASE
+  USER_WITHDRAWAL
+  WITHDRAWAL_FEE
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  COMPLETED
+  REJECTED
+  FAILED
+}
