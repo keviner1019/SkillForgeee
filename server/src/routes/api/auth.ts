@@ -1,10 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 // Routes will be implemented during development
 
 const router = Router();
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
+
   res.status(501).json({ message: 'Registration endpoint - to be implemented' });
 });
 
