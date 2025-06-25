@@ -15,7 +15,10 @@ router.post('/', async (req, res) => {
 
 // POST /api/paths/generate - AI generate path
 router.post('/generate', async (req, res) => {
-  res.status(501).json({ message: 'AI generate path endpoint - to be implemented' });
+  res.status(501).json({ 
+    message: 'AI generate path endpoint - to be implemented (using Google Gemini API)',
+    note: 'This will use the Gemini service for AI-powered learning path generation'
+  });
 });
 
 // GET /api/paths/:id - Get specific path

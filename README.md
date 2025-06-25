@@ -50,7 +50,7 @@ SkillForge is a modern web application that solves a common problem for self-lea
 - **PostgreSQL** with **Prisma ORM**
 - **Socket.IO** for real-time collaboration
 - **JWT** for authentication
-- **OpenAI API** for AI-powered path generation
+- **Google Gemini API** for AI-powered path generation
 - **Google Translate API** for translation features
 - **bcryptjs** for password hashing
 - **Rate limiting** and security middleware
@@ -60,7 +60,7 @@ SkillForge is a modern web application that solves a common problem for self-lea
 ### Prerequisites
 - Node.js 18+ 
 - PostgreSQL 14+
-- OpenAI API key
+- Google Gemini API key
 - Google Translate API key (optional)
 
 ### Installation
@@ -237,7 +237,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- OpenAI for the GPT API that powers learning path generation
+- Google for the Gemini API that powers learning path generation
 - The React Flow team for the excellent graph visualization library
 - The shadcn/ui team for the beautiful component library
 - All the open-source libraries that make this project possible
