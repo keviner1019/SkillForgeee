@@ -1,10 +1,10 @@
+import { Request } from 'express';
+
 // Authentication request body types
 export interface RegisterRequestBody {
     email: string;
     password: string;
     confirmPassword: string;
-    firstName: string;
-    lastName: string;
 }
 
 export interface LoginRequestBody {
@@ -32,8 +32,6 @@ export interface ChangePasswordBody {
 export interface UserResponse {
     id: string;
     email: string;
-    firstName: string;
-    lastName: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -56,4 +54,12 @@ export interface ValidationErrorResponse {
     success: false;
     message: string;
     errors: ValidationError[];
-} 
+}
+
+// Authenticated request type with user information
+export interface AuthenticatedRequest extends Request {
+    user?: {
+        id: number;
+        email: string;
+    };
+}
