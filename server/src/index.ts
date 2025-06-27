@@ -9,9 +9,12 @@ import { Server } from 'socket.io';
 import dotenv from 'dotenv';
 
 // Import routes
+
 import authRoutes from './routes/api/auth';
+import paymentRoutes from './routes/api/payment'
 import pathRoutes from './routes/api/paths';
-import nodeRoutes from './routes/api/nodes';
+import nodeRoutes from './routes/api/nodes'
+// import nodeRoutes from './routes/api/nodes';
 import collaborationRoutes from './routes/api/collaboration';
 // import translationRoutes from './routes/api/translation';
 
@@ -49,13 +52,21 @@ app.use(cors({
 // Logging
 app.use(morgan('combined'));
 
+// Webhook endpoint needs raw body BEFORE json parsing
+app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Rate limiting
-app.use('/api', rateLimiter);
+// Rate limiting (exclude webhooks from rate limiting)
+app.use('/api', (req, res, next) => {
+  if (req.path === '/payment/webhook') {
+    return next();
+  }
+  return rateLimiter(req, res, next);
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -68,8 +79,10 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/paths', pathRoutes);
+app.use("/api/payment", paymentRoutes);
 app.use('/api/nodes', nodeRoutes);
+app.use('/api/paths', pathRoutes);
+// app.use('/api/nodes', nodeRoutes);
 app.use('/api/collaboration', collaborationRoutes);
 // app.use('/api/translation', translationRoutes);
 

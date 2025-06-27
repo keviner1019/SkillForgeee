@@ -66,13 +66,13 @@ export interface deleteNodeRequest extends Request {
 }
 
 // Request interface for getting nodes
-export interface getNodeRequest extends Request {
-  params?: {
-    id?: string;
-    learningPathId?: string;
-  };
-  user?: {
-    id: number;
-    username: string;
-  };
-}
+// export interface getNodeRequest extends Request {
+//   params?: {
+//     id?: string;
+//     learningPathId?: string;
+//   };
+//   user?: {
+//     id: number;
+//     username: string;
+//   };
+// }

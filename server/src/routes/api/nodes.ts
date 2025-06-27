@@ -1,26 +1,17 @@
 import { Router } from 'express';
-// Routes will be implemented during development
+import { createNode,updateNode,deleteNode } from '../../controller/nodes';
+import { authenticateToken } from '../../middleware/auth';
+import { validateCreateNode , validateUpdateNode} from '../../middleware/validation';
+const  router = Router();
 
-const router = Router();
+//create node
+router.post("/:learningPathId", authenticateToken, validateCreateNode, createNode);
+//update node
+router.put("/:id/:learningPathId", authenticateToken, validateUpdateNode, updateNode);
+//delete node
+router.delete("/:id/:learningPathId", authenticateToken, deleteNode);
 
-// PATCH /api/nodes/:id/status - Update node status
-router.patch('/:id/status', async (req, res) => {
-  res.status(501).json({ message: 'Update node status endpoint - to be implemented' });
-});
+// router.get("/", authenticateToken, validateCreateNode, createNode);
 
-// PUT /api/nodes/:id - Update node
-router.put('/:id', async (req, res) => {
-  res.status(501).json({ message: 'Update node endpoint - to be implemented' });
-});
 
-// POST /api/nodes - Create new node
-router.post('/', async (req, res) => {
-  res.status(501).json({ message: 'Create node endpoint - to be implemented' });
-});
-
-// DELETE /api/nodes/:id - Delete node
-router.delete('/:id', async (req, res) => {
-  res.status(501).json({ message: 'Delete node endpoint - to be implemented' });
-});
-
-export default router; 
+export default router;
