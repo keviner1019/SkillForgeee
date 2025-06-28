@@ -1,9 +1,10 @@
+//To prevent excessive requests
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import { Request, Response, NextFunction } from 'express';
 
 const rateLimiter = new RateLimiterMemory({
-  points: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
-  duration: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000') / 1000, // Convert to seconds
+  points: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000'), // Increased from 100 to 1000
+  duration: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000') / 1000, // Convert to seconds (15 minutes)
 });
 
 export const rateLimiterMiddleware = async (
