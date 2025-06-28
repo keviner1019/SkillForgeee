@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from '@/types';
+import type { User } from '../types';
 
 interface AuthState {
   user: User | null;
@@ -23,6 +23,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      // Only persist user data, not the token (keep token in memory for security)
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: false, // Reset auth status on reload
+        token: null // Never persist token
+      }),
     }
   )
 ); 
+

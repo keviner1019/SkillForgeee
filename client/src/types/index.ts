@@ -3,10 +3,6 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  avatar?: string;
-  bio?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 // Learning Path types
@@ -16,8 +12,8 @@ export interface LearningPath {
   description?: string;
   isPublic: boolean;
   color: string;
-  createdAt: string;
-  updatedAt: string;
+  price?: number; // Price in credits (null/undefined means free)
+  difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
   ownerId: string;
   owner: User;
   nodes: PathNode[];
@@ -43,10 +39,10 @@ export interface PathNode {
 }
 
 export enum NodeStatus {
-  NOT_STARTED = 'NOT_STARTED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  BLOCKED = 'BLOCKED'
+  NOT_STARTED = "NOT_STARTED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  BLOCKED = "BLOCKED",
 }
 
 // Note types
@@ -72,9 +68,9 @@ export interface Collaboration {
 }
 
 export enum CollaborationRole {
-  VIEWER = 'VIEWER',
-  EDITOR = 'EDITOR',
-  ADMIN = 'ADMIN'
+  VIEWER = "VIEWER",
+  EDITOR = "EDITOR",
+  ADMIN = "ADMIN",
 }
 
 // Translation types
@@ -107,12 +103,12 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+  name: string;
   email: string;
   password: string;
-  name: string;
 }
 
 export interface AuthResponse {
   user: User;
   token: string;
-} 
+}
