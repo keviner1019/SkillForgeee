@@ -80,17 +80,17 @@ export const createNode = async (
 };
 
 export const updateNode = async (
-  req: updateNodeRequest, 
+  req: updateNodeRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
     const nodeId = parseInt(req.params.id);
-    const learningPathId = parseInt(req.params.learningPathId); 
+    const learningPathId = parseInt(req.params.learningPathId);
     const userId = req.user?.id;
 
     // Validate IDs
-    if (!nodeId || isNaN(nodeId) || !learningPathId || isNaN(learningPathId)) { 
+    if (!nodeId || isNaN(nodeId) || !learningPathId || isNaN(learningPathId)) {
       res.status(400).json({
         success: false,
         message: "Valid Node ID and Learning Path ID are required.",
@@ -113,7 +113,7 @@ export const updateNode = async (
         id: nodeId,
         learningPathId: learningPathId,
         learningPath: {
-          ownerId: userId, 
+          ownerId: userId,
         },
       },
       include: {
@@ -176,7 +176,7 @@ export const updateNode = async (
       data: updateData,
     });
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       message: "Node updated successfully",
       data: updatedNode,
@@ -197,7 +197,7 @@ export const deleteNode = async (
     const userId = req.user?.id;
 
     // Validate IDs
-    if (!nodeId || isNaN(nodeId) || !learningPathId || isNaN(learningPathId)) { 
+    if (!nodeId || isNaN(nodeId) || !learningPathId || isNaN(learningPathId)) {
       res.status(400).json({
         success: false,
         message: "Valid Node ID and Learning Path ID are required.",
@@ -219,7 +219,7 @@ export const deleteNode = async (
         id: nodeId,
         learningPathId: learningPathId,
         learningPath: {
-          ownerId: userId, 
+          ownerId: userId,
         },
       },
       include: {
@@ -241,7 +241,7 @@ export const deleteNode = async (
       },
     });
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       message: "Node deleted successfully",
     });
